@@ -1,2 +1,2 @@
-# python
-Connect Salesforce + sharepoint to Python
+Connect Salesforce + Sharepoint with Python
+1. Set up the system
