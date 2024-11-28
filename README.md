@@ -1,4 +1,4 @@
-KPIs for financial teama & marketing team & HR
+KPIs for financial team & marketing team & HR
 
 This project outlines the process of extracting, transforming, and loading (ETL) data from Salesforce, Cegit, and SharePoint to a centralized Dashboard, enabling better insights and decision-making for the financial, marketing, and HR teams. 
 1) Using Python for data processing, 
