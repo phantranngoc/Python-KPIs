@@ -1,0 +1,110 @@
+# Import the necessary libraries
+import openpyxl
+from openpyxl import load_workbook
+
+import pandas as pd
+import numpy as np
+
+from pathlib import Path
+
+# Install library if not have: !pip install pandas sqlalchemy
+from sqlalchemy import create_engine # library to connect to SQL
+
+# Check the current working directory
+import os
+print (os.getcwd())
+
+# Change the current working directory 
+new_directory = r'......'
+
+os.chdir (new_directory)
+
+print (os.getcwd())
+
+# Create the connection to SQL database
+server_name = 'CANDY-PHAN'
+database_name = '...' 
+
+# Create the connection string
+connection_string = f'mssql+pyodbc://{server_name}/{database_name}?driver=ODBC+Driver+17+for+SQL+Server&Trusted_Connection=yes'
+
+# Create the SQLAlchemy engine
+engine = create_engine(connection_string)
+
+###Connect data directly from Sharepoint with username + passwords
+
+from office365.sharepoint.client_context import ClientContext
+from office365.runtime.auth.user_credential import UserCredential 
+from io import BytesIO
+import pandas as pd
+
+#sharepoint & credential
+sharepoint_url =  "link"
+username = "your email"
+password = "your password"
+
+# connect to sharepoint
+ctx = ClientContext(sharepoint_url).with_credentials(UserCredential(username, password))
+
+# file URL in sharepoint
+file_url = "....../2024/2024-09.....xlsx"
+
+# create a file to save file
+file_content = BytesIO()
+
+#Retreive the file & download
+file = ctx.web.get_file_by_server_relative_url(file_url).download(file_content).execute_query()
+
+# Pointer the content from first row
+file= file_content.seek(0)
+
+
+# Load only sheet that need to work in pandas
+df= pd.read_excel(file_content, sheet_name ='sheetname', usecols="A:Z", skiprows=0, nrows=400)
+
+
+# make sure name of all columns is str
+df.columns = [str(col) for col in df.columns]
+
+# Display the dataframe
+df.head()
+
+
+# Rename columns to 0, 1, 2, ..., n
+df.columns = [str(i) for i in range(len(df.columns))]
+
+# Display the updated column names
+print(df.columns)
+
+
+
+# Move the value from column '1' to column '0'
+words_shift = [""]
+               
+df.loc[df['1'].isin(words_shift), '0'] = df['1']  
+
+# Create the dpt columns to fill data
+df['dpt'] = df['0']
+
+# Fill the value for column: dpt
+df['dpt'] = df['dpt'].fillna(method = 'ffill')
+
+# Forward fill the values for column '0' to fill in any missing values
+df['0'] = df['0'].fillna(method='ffill')
+
+# fill it with the value from the previous column
+for i in range(3, df.shape[1], 2):  # Starts from column 3, skips every second column
+    df.iloc[0, i] = df.iloc[0, i - 1]  # Fill the current column's header with the previous column's value
+
+# Make the first row the new header by using it as the columns
+df.columns = df.iloc[0] 
+
+# Drop the first row 
+df = df[1:]
+
+# Reset the index to keep the DataFrame tidy 
+df = df.reset_index(drop=True)
+
+
+
+## other codes are editing to ensure the confidential information
