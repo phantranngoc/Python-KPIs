@@ -104,7 +104,40 @@ df = df[1:]
 
 # Reset the index to keep the DataFrame tidy 
 df = df.reset_index(drop=True)
+##############################################
 
+# see how many apprenants our each centre
+merged_df.groupby('centre')['nombre inscrit validé'].sum()
 
+# see how many apprenants our each annee
+merged_df.groupby(['annee', 'centre'])['nombre inscrit validé'].sum()
+
+# plot the results
+
+# Group by 'annee' and 'centre' and sum 'nombre inscrit validé'
+grouped_sum = merged_df.groupby(['annee', 'centre'])['nombre inscrit validé'].sum()
+
+# Reset index to make 'annee' and 'centre' columns for plotting
+grouped_sum_df = grouped_sum.reset_index()
+
+# Create a line plot
+plt.figure(figsize=(8, 6))
+
+# Loop through each unique centre and plot a line for each one
+for centre in grouped_sum_df['centre'].unique():
+    data = grouped_sum_df[grouped_sum_df['centre'] == centre]
+    
+    plt.plot(data['annee'], data['nombre inscrit validé'], marker='o', label=centre)
+
+# Add labels and title
+plt.xlabel('Année')
+plt.ylabel('Nombre Inscrit Validé')
+plt.title('Nombre Inscrit Validé par Centre et Année')
+plt.xticks(ticks=grouped_sum_df['annee'].unique(), labels=grouped_sum_df['annee'].unique())
+plt.legend(title='Centre')
+
+# Display the plot
+plt.grid(True)
+plt.show()
 
 ## other codes are editing to ensure the confidential information
